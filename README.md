@@ -1,7 +1,7 @@
-# Volumes Backup and Share Extension
+# AndroidEagleEye
 
-[![Build, Scan and Push](https://github.com/docker/volumes-backup-extension/actions/workflows/build-scan-push.yaml/badge.svg)](https://github.com/docker/volumes-backup-extension/actions/workflows/build-scan-push.yaml)
-[![Lint Dockerfile](https://github.com/docker/volumes-backup-extension/actions/workflows/hadolint.yaml/badge.svg)](https://github.com/docker/volumes-backup-extension/actions/workflows/hadolint.yaml)
+[![Build, Scan and Push](https://github.com/docker/AndroidEagleEye/actions/workflows/build-scan-push.yaml/badge.svg)](https://github.com/docker/AndroidEagleEye/actions/workflows/build-scan-push.yaml)
+[![Lint Dockerfile](https://github.com/docker/AndroidEagleEye/actions/workflows/hadolint.yaml/badge.svg)](https://github.com/docker/AndroidEagleEye/actions/workflows/hadolint.yaml)
 
 
 > [!IMPORTANT]
@@ -33,7 +33,7 @@
 The recommended way to install the extension is from the Marketplace in Docker Desktop.
 You could also install it with the Docker Extensions CLI, targeting either a published released (e.g. `1.0.0`) or branch (e.g. `main`):
 ```bash
-  docker extension install docker/volumes-backup-extension:main
+  docker extension install docker/AndroidEagleEye:main
 ```
 
 ## Run Locally
@@ -41,25 +41,25 @@ You could also install it with the Docker Extensions CLI, targeting either a pub
 Clone the project
 
 ```bash
-  git clone https://github.com/docker/volumes-backup-extension.git
+  git clone https://github.com/docker/AndroidEagleEye.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd volumes-backup-extension
+  cd AndroidEagleEye
 ```
 
 Build the extension
 
 ```bash
-  docker build -t docker/volumes-backup-extension:latest .
+  docker build -t docker/AndroidEagleEye:latest .
 ```
 
 Install the extension
 
 ```bash
-  docker extension install docker/volumes-backup-extension:latest
+  docker extension install docker/AndroidEagleEye:latest
 ```
 
 Developing the frontend
@@ -75,19 +75,19 @@ This starts a development server that listens on port 3000.
 You can now tell Docker Desktop to use this as the frontend source. In another terminal run:
 
 ```bash
-  docker extension dev ui-source docker/volumes-backup-extension:latest http://localhost:3000
+  docker extension dev ui-source docker/AndroidEagleEye:latest http://localhost:3000
 ```
 
 In order to open the Chrome Dev Tools for your extension when you click on the extension tab, run:
 
 ```bash
-  docker extension dev debug docker/volumes-backup-extension:latest
+  docker extension dev debug docker/AndroidEagleEye:latest
 ```
 
 Each subsequent click on the extension tab will also open Chrome Dev Tools. To stop this behaviour, run:
 
 ```bash
-  docker extension dev reset docker/volumes-backup-extension:latest
+  docker extension dev reset docker/AndroidEagleEye:latest
 ```
 
 ## Acknowledgements

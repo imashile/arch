@@ -5,6 +5,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/felipecruz91/vackup-docker-extension/internal"
 	"github.com/felipecruz91/vackup-docker-extension/internal/backend"
 	"github.com/felipecruz91/vackup-docker-extension/internal/log"
 	"github.com/labstack/echo"
@@ -28,6 +29,23 @@ func (h *Handler) ImportTarGzFile(ctx echo.Context) error {
 	log.Infof("volumeName: %s", volumeName)
 	log.Infof("path: %s", path)
 
+	defer func() {
+		h.ProgressCache.Lock()
+		delete(h.ProgressCache.m, volumeName)
+		h.ProgressCache.Unlock()
+		_ = backend.TriggerUIRefresh(ctx.Request().Context(), h.DockerClient)
+	}()
+
+	h.ProgressCache.Lock()
+	h.ProgressCache.m[volumeName] = "import"
+	h.ProgressCache.Unlock()
+
+	err := backend.TriggerUIRefresh(ctx.Request().Context(), h.DockerClient)
+	if err != nil {
+		log.Error(err)
+		return ctx.String(http.StatusInternalServerError, err.Error())
+	}
+
 	// Stop container(s)
 	stoppedContainers, err := backend.StopContainersAttachedToVolume(ctx.Request().Context(), h.DockerClient, volumeName)
 	if err != nil {
@@ -43,7 +61,7 @@ func (h *Handler) ImportTarGzFile(ctx echo.Context) error {
 	log.Infof("binds: %+v", binds)
 
 	// Ensure the image is present before creating the container
-	reader, err := h.DockerClient.ImagePull(ctx.Request().Context(), "docker.io/library/busybox", types.ImagePullOptions{
+	reader, err := h.DockerClient.ImagePull(ctx.Request().Context(), internal.BusyboxImage, types.ImagePullOptions{
 		Platform: "linux/" + runtime.GOARCH,
 	})
 	if err != nil {
@@ -55,13 +73,21 @@ func (h *Handler) ImportTarGzFile(ctx echo.Context) error {
 	}
 
 	resp, err := h.DockerClient.ContainerCreate(ctx.Request().Context(), &container.Config{
-		Image:        "docker.io/library/busybox",
+		Image:        internal.BusyboxImage,
 		AttachStdout: true,
 		AttachStderr: true,
 		// remove hidden and not-hidden files and folders:
 		// ..?* matches all dot-dot files except '..'
 		// .[!.]* matches all dot files except '.' and files whose name begins with '..'
 		Cmd: []string{"/bin/sh", "-c", "rm -rf /vackup-volume/..?* /vackup-volume/.[!.]* /vackup-volume/* && tar -xvzf /vackup"},
+		Labels: map[string]string{
+			"com.docker.desktop.extension":        "true",
+			"com.docker.desktop.extension.name":   "Volumes Backup & Share",
+			"com.docker.compose.project":          "docker_volumes-backup-extension-desktop-extension",
+			"com.volumes-backup-extension.action": "import",
+			"com.volumes-backup-extension.volume": volumeName,
+			"com.volumes-backup-extension.path":   path,
+		},
 	}, &container.HostConfig{
 		Binds: binds,
 	}, nil, nil, "")

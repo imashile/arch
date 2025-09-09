@@ -30,7 +30,6 @@ export default function ExportDialog({ ...props }) {
   const ddClient = useDockerDesktopClient();
 
   useEffect(() => {
-    console.log("Setting file name to volume name: ", props.volumeName);
     setFileName(`${props.volumeName}.tar.gz`);
   }, [props.volumeName]);
 
